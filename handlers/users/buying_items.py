@@ -1,10 +1,12 @@
 # прописываем реакцию на кнопку «Купить»
+from this import s
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from asgiref.sync import sync_to_async
 
 from keyboards.inline.menu_keyboard import buy_item
+from keyboards.inline.start_keyboard import start_keyboard
 from loader import dp, bot
 from utils.db_api.db_commands import select_user, get_item, add_item
 from django_project.telegrambot.usermanage.models import Purchase
@@ -56,5 +58,5 @@ async def enter_phone(message: types.Message, state: FSMContext):
     purchase = data.get('purchase')
     purchase.phone_number = phone_number
     await sync_to_async(purchase.save)()
-    await message.answer('Покупка создана.')
     await state.finish()
+    await message.answer('Покупка создана.', reply_markup=start_keyboard)

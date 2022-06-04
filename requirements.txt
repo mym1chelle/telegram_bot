@@ -4,3 +4,5 @@ asyncio~=3.4.3
 Django~=3.2.2
 jsonfield~=3.1.0
 asgiref~=3.3.4
+psycopg2~=2.9.3
+Pillow~=9.1.0

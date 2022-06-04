@@ -1,3 +1,4 @@
+from distutils.command.upload import upload
 from django.db import models
 from jsonfield import JSONField
 
@@ -20,8 +21,12 @@ class User(TimeBasedModel):
     id = models.AutoField(primary_key=True)
     user_id = models.BigIntegerField(unique=True, default=1, verbose_name='ID пользователя телеграм') # verbose_name – название колонки
     name = models.CharField(max_length=100, verbose_name='Имя пользователя')
-    username = models.CharField(max_length=100, verbose_name='Username Телеграм')
+    username = models.CharField(max_length=100, verbose_name='Username Телеграм', null=True) # оказывается, не у всех пользователей есть username
     email = models.CharField(max_length=100, verbose_name='Email', null=True)  # null=True — поле может быть пустым
+    bonus = models.DecimalField(verbose_name='Цена', decimal_places=2, max_digits=8, default=0)
+    referrer_number = models.CharField(max_length=100)
+    referral = models.ForeignKey('Referral', on_delete=models.PROTECT)
+
 
     def __str__(self):
         # метод для принта пользователя
@@ -33,10 +38,8 @@ class Referral(TimeBasedModel):
     class Meta:
         verbose_name = 'Реферал'
         verbose_name_plural = 'Рефералы'
-    # id того, кто перешел по ссылке
-    id = models.ForeignKey(User, unique=True, primary_key=True, on_delete=models.CASCADE)  # связываем по этому ключу с таблицей User
-    # on_delete=models.CASCADE – при удалении пользователя из таблицы User это же пользователь удалится из этой таблицы
-    referrer_id = models.BigIntegerField()  # id того, чья была ссылка
+
+    referrer_id = models.BigIntegerField(unique=True)  # код для реферальной ссылки
 
     def __str__(self):
         return f'№{self.id} — от {self.referrer_id}'
@@ -48,7 +51,7 @@ class Item(TimeBasedModel):
         verbose_name_plural = 'Товары'
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name='Название товара', max_length=50)
-    photo = models.CharField(verbose_name='Фото file_id', max_length=200)
+    photo = models.ImageField(verbose_name='Фото', upload_to='photos/%Y/%m/%d/', null=True)
     price = models.DecimalField(verbose_name='Цена', decimal_places=2, max_digits=8)
     # используем тип поля с достаточной точностью приближения
     # decimal_places – знаки после запятой
@@ -84,3 +87,12 @@ class Purchase(TimeBasedModel):
 
     def __str__(self):
         return f'№{self.id} — {self.item_id} ({self.quantity})'
+
+
+class BotAdmin(TimeBasedModel):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    user_id = models.BigIntegerField(unique=True, default=1)
+
+    def __str__(self):
+        return f'№{self.id} - {self.user_id} - {self.name}'

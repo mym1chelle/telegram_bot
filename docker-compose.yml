@@ -1,0 +1,38 @@
+version: '3.1'
+
+
+services:
+  tgbot:
+    container_name: bot
+    build:
+      context: .
+    command: python app.py
+    volumes:
+      - .:/src
+    networks:
+      - botnet
+    restart: always
+    env_file:
+      - ".env"
+    depends_on:
+      - django
+ 
+  django:
+    container_name: djangoproject
+    build:
+      context: .
+    command: python django_app.py runserver 0.0.0.0:8000 --noreload
+    ports:
+      - 8000:8000
+    networks:
+      - botnet
+    restart: always
+    env_file:
+      - ".env"
+
+
+# указываются используемые сети
+networks:
+  botnet:
+
+    driver: bridge
