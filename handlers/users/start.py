@@ -10,7 +10,7 @@ from filters import UserFilter
 import random
 
 
-from data.config import CHANNELS, SECRET_CODE
+from data.config import CHANNEL, SECRET_CODE
 from keyboards.inline.enter_code import enter_code
 from states import AddItems
 
@@ -123,18 +123,17 @@ async def get_code(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(text='check_subs')
 async def check_subs(call: types.CallbackQuery):
-    """Данная функция пока не реализована"""
+    """Данная функция отвечает за проверку подписки на канал у пользователя, что нажал на кнопку"""
     await call.answer()
     result = str()
-    for channel in CHANNELS:
-        status = await check(user_id=call.from_user.id, channel=channel)
-        channel = await bot.get_chat(channel)
-        if status:
-            result += f'Подписка на канал <b>{channel.title}</b> оформлена!\n\n'
-        else:
-            invite_link = channel.export_invite_link()
-            result += f'Подписка на канал <b>{channel.title}</b> не оформлена!\n'\
-                      f'<a href="{invite_link}">Нужно подписаться</a>'
+    status = await check(user_id=call.from_user.id, channel=CHANNEL)
+    channel = await bot.get_chat(CHANNEL)
+    if status:
+        result += f'Подписка на канал <b>{channel.title}</b> оформлена!\n\n'
+    else:
+        invite_link = channel.export_invite_link()
+        result += f'Подписка на канал <b>{channel.title}</b> не оформлена!\n'\
+                    f'<a href="{invite_link}">Нужно подписаться</a>'
 
     await call.message.answer(result, disable_web_page_preview=True)
 
