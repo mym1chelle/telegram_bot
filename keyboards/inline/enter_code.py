@@ -5,7 +5,12 @@ enter_code = InlineKeyboardMarkup(
         [
             InlineKeyboardButton(
                 text='Ввести код',
-                callback_data='code')
+                callback_data='code'),
+
+            
+             InlineKeyboardButton(
+                text='Проверить подписки',
+                callback_data='check_subs'),
         ]
     ]
 )

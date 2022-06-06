@@ -82,19 +82,12 @@ def search_item(text: str) -> List[Item]:
 
 
 @sync_to_async
-def select_referral(referrer_id):
-    try:
-        return Referral.objects.get(referrer_id=int(referrer_id)).id
-    except:
-        return False
-
-
-@sync_to_async
 def add_referral(referral_id):
     try:
-        return Referral(referrer_id=referral_id).save()
+        Referral(referrer_id=referral_id).save()
+        return Referral.objects.get(referrer_id=int(referral_id)).id
     except Exception:
-        return select_referral(id=id)
+        return Referral.objects.get(referrer_id=int(referral_id)).id
 
 
 @sync_to_async

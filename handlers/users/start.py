@@ -16,7 +16,23 @@ from states import AddItems
 
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
-    """Функция выполняет все проверки зарегистрирован ли пользователь и регистрацию пользователя в базе данных при обращении к боту в первый раз"""
+    """Функция является основным инструментом регистрации пользователей
+    Для начала проверяет вдруг пользователь уже зарегестрирован. Если это так, то при нажатии команды /start выдает ему меню.
+    Если пользователь не зарегестрирован, а просто нажал команду /start то бот отправляет ему сообщение с инструкцией о том, как можно зарегестрироваться:
+    1. Ввести секретный код
+    Пользователь нажимает инлайн-кнопку и вводит код, если код неверный, то пользователю предлагается повторить попытку. Если код верный, то пользователя добавляют в базу данных
+    и дают ему реферальную ссылку по которой могут регестрироваться другие пользователи
+    2. Подписаться на канал
+    Пользователь может подписаться на канал, в таком случае при нажатии кнопки для проверки подписки пользователь будет зарегистрирован.
+    
+    Пользователь также может быть зарегистрирован если перейдет по реферальной ссылке другого пользователя, который уже зарегестрирован в БД.
+    Это работает так:
+    - Пользователь преходит по реферальной ссылке. Осуществляется проверка: есть ли среди зарегестрированных пользователь такой, у которого ссылка, по которой перешел новый пользователь.
+    Если нет, то отправляем сообщение о том, что реферальная ссылка не верная.
+    Если пользователь с такой реферальной ссылкой существует, то ему начисляется бонус за переход по его ссылке. Далее, чтобы считать сколько пользователей было зарегестрировано с помощью реферальной ссылки
+    добавляем пользователя в список рефералов и берем его id, либо (если такой пользователь уже есть в списке) берем его id.
+    - Регистрируем нового пользователя.
+    """
     get_user = await commands.select_user(user_id=message.from_user.id) # пытаюсь найти пользователя с текущим user_id в базе данных
 
     if get_user == False: # если пользователя с таким user_id в базе данных нет, то проверяю передавал ли при запуске бота пользователь аргумент
@@ -28,26 +44,12 @@ async def bot_start(message: types.Message):
             if check: # если пользователь с такой реферральной ссылкой найден
                 await commands.add_bonus(user_id=check.user_id) # начисляю данному пользователю бонус за переход по его рефферальной ссылке
                 code_ref = int(message.from_user.id + random.randrange(1, 10)) # создаю реферральную ссылку для нового пользователя
-                check_ref = await commands.select_referral(referrer_id=referral) # проверяю есть ли в списке ссылок, по которым переходили раньше пользователи, ссылка на пользователя с рефферальной ссылкой при запуске бота
-                
-                if check_ref == False: # если там нет этого пользователя, добавляю
-                    await commands.add_referral(referral_id=referral)
-                    
-                    ref_id = await commands.select_referral(referrer_id=referral) # и тут же беру его id чтобы зарегестрировать нового пользователя в базе данных и связать их, так как регистрация прошла благодаря переходу по его рефферальной ссылке
-
-                    await commands.add_user(user_id=message.from_user.id,
-                            full_name=message.from_user.full_name,
-                            username=message.from_user.username, referrer_number=code_ref, referral=ref_id)
-
-
-
-                else:
-                    # по ссылке уже переходили другие пользователи второй раз этого пользователя в список реферралов не добавляем
-                    await commands.add_user(user_id=message.from_user.id,
+                ref = await commands.add_referral(referral_id=referral) # добавляю пользователя, по чьей ссылке перешли, в таблицу рефералов, если он не зарегестрирован там. Если он там есть - беру его id
+                await commands.add_user(user_id=message.from_user.id,
                             full_name=message.from_user.full_name,
                             username=message.from_user.username, 
                             referrer_number=code_ref, 
-                            referral=int(check_ref))
+                            referral=int(ref))
 
         
                 bot_username = (await bot.get_me()).username
@@ -64,10 +66,16 @@ async def bot_start(message: types.Message):
                 await message.answer(f'{message.from_user.get_mention()} такой реферальной ссылки не существует.')
 
         else:
+            chat = await bot.get_chat(chat_id=CHANNEL) # собираю информацию о канале по его id
+            invite_link = await chat.export_invite_link() # создаю ссылку для приглашения в этот канал
+            channel_format = f'Канал <a href="{invite_link}">{chat.title}</a>\n\n'
+
             await message.answer(f'Привет, {message.from_user.get_mention()}!'
                                 f'Чтобы использовать этого бота введите код приглашения, либо пройдите'
-                                f' по реферальной ссылке',
-                                reply_markup=enter_code)
+                                f' по реферальной ссылке.'
+                                f'Если у вас нет ссылки и кода, то подпишитесь на канал: \n'
+                                f'{channel_format}',
+                                reply_markup=enter_code, disable_web_page_preview=True)
     else:
         await message.answer('Меню:', reply_markup=start_keyboard)
 
@@ -99,9 +107,7 @@ async def get_code(message: types.Message, state: FSMContext):
     if code in SECRET_CODE:  # проверка на корректность введенного кода
         code_ref = int(message.from_user.id + random.randrange(1, 10))
 
-        await commands.add_referral(referral_id=code)
-        ref_id = await commands.select_referral(referrer_id=code)
-        print(f'{message.from_user.id}, {message.from_user.full_name}, {message.from_user.username}, {code_ref}, {ref_id}')
+        ref_id = await commands.add_referral(referral_id=code)
         await commands.add_user(user_id=message.from_user.id,
                             full_name=message.from_user.full_name,
                             username=message.from_user.username,
@@ -125,17 +131,31 @@ async def get_code(message: types.Message, state: FSMContext):
 async def check_subs(call: types.CallbackQuery):
     """Данная функция отвечает за проверку подписки на канал у пользователя, что нажал на кнопку"""
     await call.answer()
-    result = str()
     status = await check(user_id=call.from_user.id, channel=CHANNEL)
     channel = await bot.get_chat(CHANNEL)
+    bot_username = (await bot.get_me()).username
+    code_ref = int(call.from_user.id + random.randrange(1, 10))
+    bot_link = f'https://t.me/{bot_username}?start={code_ref}'
     if status:
-        result += f'Подписка на канал <b>{channel.title}</b> оформлена!\n\n'
+        await call.message.answer(f'Подписка на канал <b>{channel.title}</b> оформлена!\n\n')
+
+        ref_id = await commands.add_referral(referral_id=CHANNEL)
+    
+        await commands.add_user(user_id=call.from_user.id,
+                            full_name=call.from_user.full_name,
+                            username=call.from_user.username,
+                            referrer_number=code_ref,
+                            referral=ref_id)
+
+        count = await commands.count_users()
+        await call.message.answer(f'{call.from_user.get_mention()} вы оформили подписку на канал и были доваблены в базу данных.\n'
+                         f'В базе <b>{count}</b> пользователей.\n'
+                         f'Твоя реферальная ссылка: {bot_link}'
+                         )
     else:
         invite_link = channel.export_invite_link()
-        result += f'Подписка на канал <b>{channel.title}</b> не оформлена!\n'\
-                    f'<a href="{invite_link}">Нужно подписаться</a>'
-
-    await call.message.answer(result, disable_web_page_preview=True)
+        await call.message.answer(f'Подписка на канал <b>{channel.title}</b> не оформлена!\n'\
+                    f'<a href="{invite_link}">Нужно подписаться</a>', disable_web_page_preview=True)
 
 
 
