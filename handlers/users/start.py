@@ -3,6 +3,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher.filters import Command
+from keyboards.inline.menu_keyboard import buy_item_keyboard
 from keyboards.inline.start_keyboard import start_keyboard
 from utils.db_api import db_commands as commands
 from loader import dp, bot
@@ -33,6 +34,7 @@ async def bot_start(message: types.Message):
     добавляем пользователя в список рефералов и берем его id, либо (если такой пользователь уже есть в списке) берем его id.
     - Регистрируем нового пользователя.
     """
+    
     get_user = await commands.select_user(user_id=message.from_user.id) # пытаюсь найти пользователя с текущим user_id в базе данных
 
     if get_user == False: # если пользователя с таким user_id в базе данных нет, то проверяю передавал ли при запуске бота пользователь аргумент
@@ -42,8 +44,8 @@ async def bot_start(message: types.Message):
             check = await commands.get_referrer(referrer_number=referral)
 
             if check: # если пользователь с такой реферральной ссылкой найден
-                await commands.add_bonus(user_id=check.user_id) # начисляю данному пользователю бонус за переход по его рефферальной ссылке
-                code_ref = int(message.from_user.id + random.randrange(1, 10)) # создаю реферральную ссылку для нового пользователя
+                await commands.add_bonus(user_id=check.user_id) # начисляю данному пользователю бонус за переход по его реферальной ссылке
+                code_ref = int(message.from_user.id + random.randrange(1, 10)) # создаю реферальную ссылку для нового пользователя
                 ref = await commands.add_referral(referral_id=referral) # добавляю пользователя, по чьей ссылке перешли, в таблицу рефералов, если он не зарегестрирован там. Если он там есть - беру его id
                 await commands.add_user(user_id=message.from_user.id,
                             full_name=message.from_user.full_name,
@@ -77,7 +79,14 @@ async def bot_start(message: types.Message):
                                 f'{channel_format}',
                                 reply_markup=enter_code, disable_web_page_preview=True)
     else:
-        await message.answer('Меню:', reply_markup=start_keyboard)
+        item_id = message.get_args()
+        if item_id:
+            item = await commands.get_item(item_id=item_id)
+            await message.answer(f'Название товара: {item.name}\n'
+                            f'Цена: {item.price}\n', reply_markup=buy_item_keyboard(item_id=item.id))
+        else:
+            await message.answer('Меню:', reply_markup=start_keyboard)
+
 
 
 @dp.callback_query_handler(text='ref')
@@ -248,3 +257,5 @@ async def enter_subcategory_name(message: types.Message, state: FSMContext):
     await commands.add_item(name=item_name, price=item_price, description=item_description, category_code=item_category_code, category_name=item_category_name, subcategory_code=item_subcategory_code, subcategory_name=item_subcategory_name)
 
     await state.finish()
+
+
