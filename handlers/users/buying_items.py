@@ -123,14 +123,14 @@ async def process_successful_payment(message: types.Message):
     if user.bonus != 0:
         # обнуляю бонусные баллы, если они есть у пользователя
         user.bonus = 0 
-        await sync_to_async(user.save())
+        await sync_to_async(user.save)()
 
     purchase = await get_purchase(user_id = user.id)
     # обновляю статус оплаты в заказе
     purchase.successful = True
-    await sync_to_async(purchase.save())
+    await sync_to_async(purchase.save)()
 
     if message.successful_payment.provider_payment_charge_id:
         await bot.send_message(chat_id=message.from_user.id,
-            text=f'Спасибо, {message.from_user.get_mention()}! Вы оплатили товар на сумму {purchase.amount} {message.successful_payment.currency}. Ожидайте звонка оператора.'
+            text=f'Спасибо, {message.from_user.get_mention()}! Вы оплатили товар на сумму {message.successful_payment.total_amount} {message.successful_payment.currency}. Ожидайте звонка оператора.'
         )
