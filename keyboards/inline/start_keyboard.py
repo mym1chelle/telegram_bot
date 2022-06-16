@@ -10,6 +10,10 @@ start_keyboard = InlineKeyboardMarkup(
             InlineKeyboardButton(
                 text='Реферралы',
                 callback_data='ref'),
+
+            InlineKeyboardButton(
+                text='Мои заказы',
+                callback_data='purch'),
         ]
     ]
 )

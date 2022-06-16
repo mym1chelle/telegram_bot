@@ -4,7 +4,7 @@ from loader import dp
 # from keyboards.inline.menu_keyboard import buy_item_keyboard
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# Эта версия сразу для покупки товара бещ его перехода в чат с ботом
+# Эта версия сразу для покупки товара без его перехода в чат с ботом
 # @dp.inline_handler()
 # async def item_query(query: types.InlineQuery):
 #     items = await search_item(query.query)  # осуществляю поиск по товарам по вводу в инлайн режиме

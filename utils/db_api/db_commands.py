@@ -1,5 +1,6 @@
 from django_project.telegrambot.usermanage.models import Item, Purchase, User, Referral, BotAdmin 
 from asgiref.sync import sync_to_async
+from django.db.models import Sum, Count
 
 from typing import List
 
@@ -114,8 +115,6 @@ def add_bonus(user_id: int):
     return 'Бонус зачислен'
     
 
-
-
 @sync_to_async
 def get_admin(user_id):
     """Поиск пользователя в таблице администратовров по user_id"""
@@ -139,3 +138,14 @@ def get_purchase(user_id):
     """Берет последний добавленный заказ"""
     return Purchase.objects.filter(buyer_id=user_id).last()
 
+
+@sync_to_async
+def select_purchase(user_id):
+    """Выбор всех заказов у пользователя"""
+    return Purchase.objects.filter(buyer_id=user_id)
+
+
+@sync_to_async
+def count_sum(user_id):
+    """Выводит список заказов пользователя. Группирует их по названию и суммирует цену и количество"""
+    return Purchase.objects.filter(buyer_id=user_id).values('item_id').annotate(total=Sum('amount'), quantity=Sum('quantity'))
