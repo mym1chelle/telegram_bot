@@ -131,6 +131,7 @@ def add_item(name, price, description, category_code, category_name, subcategory
         Item(name=name, price=price, description=description, category_code=category_code, category_name=category_name, subcategory_code=subcategory_code, subcategory_name=subcategory_name).save()
     except:
         print('Ошибка')
+        return False
 
 
 @sync_to_async
@@ -149,3 +150,68 @@ def select_purchase(user_id):
 def count_sum(user_id):
     """Выводит список заказов пользователя. Группирует их по названию и суммирует цену и количество"""
     return Purchase.objects.filter(buyer_id=user_id).values('item_id').annotate(total=Sum('amount'), quantity=Sum('quantity'))
+
+@sync_to_async
+def edit_name(item_id, new_name):
+    item = Item.objects.get(id=item_id)
+    print(item.name)
+    print(new_name)
+    item.name = new_name
+    item.save()
+
+@sync_to_async
+def edit_description(item_id, new_description):
+    item = Item.objects.get(id=item_id)
+    print(item.description)
+    print(new_description)
+    item.description = new_description
+    item.save()
+
+@sync_to_async
+def edit_price(item_id, new_price):
+    item = Item.objects.get(id=item_id)
+    print(item.price)
+    print(new_price)
+    item.price = new_price
+    item.save()
+
+@sync_to_async
+def edit_category_code(item_id, new_category_code):
+    item = Item.objects.get(id=item_id)
+    print(item.category_code)
+    print(new_category_code)
+    item.category_code = new_category_code
+    item.save()
+
+@sync_to_async
+def edit_category_name(item_id, new_category_name):
+    item = Item.objects.get(id=item_id)
+    print(item.category_name)
+    print(new_category_name)
+    item.category_name = new_category_name
+    item.save()
+
+@sync_to_async
+def edit_subcategory_code(item_id, new_subcategory_code):
+    item = Item.objects.get(id=item_id)
+    print(item.subcategory_code)
+    print(new_subcategory_code)
+    item.subcategory_code = new_subcategory_code
+    item.save()
+
+@sync_to_async
+def edit_subcategory_name(item_id, new_subcategory_name):
+    item = Item.objects.get(id=item_id)
+    print(item.subcategory_name)
+    print(new_subcategory_name)
+    item.subcategory_name = new_subcategory_name
+    item.save()
+
+@sync_to_async
+def delete_item(item_id):
+    try:
+        item = Item.objects.get(id=item_id)
+        return item.delete()
+    except:
+        print('Ошибка')
+        return False

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Item, Purchase, Referral
+from .models import User, Item, Purchase, Referral, BotAdmin
 
 
 @admin.register(User)  # вместо admin.site.register(User)
@@ -20,3 +20,8 @@ class ReferralAdmin(admin.ModelAdmin):
 @admin.register(Purchase)
 class PurchaseAdmin(admin.ModelAdmin):
     list_display = ('id', 'buyer', 'item_id', 'quantity', 'reciever', 'created_at', 'successful')
+
+
+@admin.register(BotAdmin)
+class PurchaseAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'user_id')
