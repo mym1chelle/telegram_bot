@@ -75,7 +75,7 @@ class Purchase(TimeBasedModel):
     id = models.AutoField(primary_key=True)
     buyer = models.ForeignKey(User, verbose_name='Покупатель', on_delete=models.SET(0))
     # если из таблицы User удалился пользователь, то в этой колонке будет стоять 0
-    item_id = models.ForeignKey(Item, verbose_name='Идентификатор товара', on_delete=models.CASCADE)
+    item_id = models.ForeignKey(Item, verbose_name='Идентификатор товара', on_delete=models.PROTECT)
     amount = models.DecimalField(verbose_name='Стоимость', decimal_places=2, max_digits=8)
     quantity = models.IntegerField(verbose_name='Количество')
     purchase_time = models.DateTimeField(verbose_name='Время покупки', auto_now_add=True)

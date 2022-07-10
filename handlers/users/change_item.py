@@ -28,9 +28,12 @@ async def edit_name(call: types.CallbackQuery, state: FSMContext):
     item = data.get('item')
     name = item.name
     print(item.id)
-    await commands.delete_item(item_id=item.id)
+    result = await commands.delete_item(item_id=item.id)
     await state.finish()
-    await bot.send_message(chat_id=call.from_user.id, text=f'Вы удалили товар {name}.')
+    if result == False:
+        await bot.send_message(chat_id=call.from_user.id, text=f'При удалении товара {name} произошла ошибка. Повторите попытку позже.')
+    else:
+        await bot.send_message(chat_id=call.from_user.id, text=f'Вы удалили товар {name}.')
 
 @dp.callback_query_handler(state='check_delete_item', text='no')
 async def edit_name(call: types.CallbackQuery, state: FSMContext):
