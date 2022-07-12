@@ -185,3 +185,10 @@ async def edit_new_price(message: types.Message, state: FSMContext):
     await commands.edit_subcategory_name(item_id=item.id, new_subcategory_name=message.text)
     await state.finish()
     await bot.send_message(chat_id=message.from_user.id, text=f'Вы изменили код подкатегории товара. Новое код подкатегории товара {message.text}')
+
+# выход из меню редактирования товара
+@dp.callback_query_handler(state='edit_item', text='cancel_edit')
+async def edit_subcategory_name(call: types.CallbackQuery, state: FSMContext):
+    await call.answer()
+    await state.finish()
+    await bot.send_message(chat_id=call.from_user.id, text='Вы отменили редактирование товара.', reply_markup=start_keyboard)

@@ -46,6 +46,9 @@ edit_item_keyboard = InlineKeyboardMarkup(
         [
             InlineKeyboardButton(text='Код подкатегории', callback_data='subcategory_code'),
             InlineKeyboardButton(text='Название подкатегории',  callback_data='subcategory_name')
+        ],
+        [
+            InlineKeyboardButton(text='Отмена', callback_data='cancel_edit')
         ]
     ]
 )

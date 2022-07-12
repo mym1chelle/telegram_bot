@@ -8,6 +8,7 @@ from utils.db_api import db_commands as commands
 from states import AddItems
 from filters import UserFilter
 from keyboards.inline.admin_menu import admin_keyboard
+from keyboards.inline.start_keyboard import start_keyboard
 
 
 
@@ -105,5 +106,10 @@ async def enter_subcategory_name(message: types.Message, state: FSMContext):
         await bot.send_message(chat_id=message.from_user.id, text=f'Произошла ошибка при добавлении товара. Товар не был добавлен.')
         
     else:
-        await bot.send_message(chat_id=message.from_user.id, text=f'Товар {item_name} {item_price} {item_description} успешно добавлен.')
+        await bot.send_message(chat_id=message.from_user.id, 
+        text=f'Товар: {item_name}\n'
+        f'Описание: {item_description}\n'
+        f'Цена: {item_price}\n'
+        f'успешно добавлен.',
+        reply_markup=start_keyboard)
     await state.finish()
