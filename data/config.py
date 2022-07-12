@@ -12,6 +12,7 @@ PASSWORD = env.str('PASSWORD_DB')
 PORT = env.str('PORT')
 SECRET_CODE = env.list('SECRET_CODE')
 CHANNEL = env.int('CHANNELS')
+BOT_LINK = env.str('BOT_LINK')
 
 # для оплаты
 PROVIDER_TOKEN = env.str('PROVIDER_TOKEN')

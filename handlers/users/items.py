@@ -5,6 +5,7 @@ from loader import dp
 from keyboards.inline.menu_keyboard import change_item_keyboard
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from filters import UserFilter
+from data.config import BOT_LINK as link
 
 # Эта версия сразу для покупки товара без его перехода в чат с ботом
 # @dp.inline_handler()
@@ -31,7 +32,7 @@ from filters import UserFilter
 
 # не понимаю как тут проходит смена в работе инлайн режимов
 @dp.inline_handler(UserFilter())
-async def item_query(query: types.InlineQuery):
+async def item_query_admin(query: types.InlineQuery):
     items = await search_item(query.query)  # осуществляю поиск по товарам по вводу в инлайн режиме
     results = []
     # генерирую результат для каждого товара из списка
@@ -50,7 +51,7 @@ async def item_query(query: types.InlineQuery):
 
 
 @dp.inline_handler()
-async def item_query(query: types.InlineQuery):
+async def item_query_user(query: types.InlineQuery):
     items = await search_item(query.query)  # осуществляю поиск по товарам по вводу в инлайн режиме
     results = []
     # генерирую результат для каждого товара из списка
@@ -62,7 +63,7 @@ async def item_query(query: types.InlineQuery):
             input_message_content=types.InputMessageContent(
                 message_text=f'Название товара: {item.name}'),
             reply_markup=InlineKeyboardMarkup(inline_keyboard=[[
-                                    InlineKeyboardButton(text='Показать товар', url=f'https://t.me/Project_MyM1chelle_Bot?start={item.id}'),
+                                    InlineKeyboardButton(text='Показать товар', url=f'{link}?start={item.id}'),
                                     InlineKeyboardButton(text='Меню', switch_inline_query_current_chat='')]]) # подключаю клавиатуру для покупки
             )
         results.append(line)  # формирую список с окончательным результатом
