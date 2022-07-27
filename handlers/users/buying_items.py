@@ -1,4 +1,5 @@
 # прописываем реакцию на кнопку «Купить»
+from multiprocessing.spawn import old_main_modules
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
@@ -12,7 +13,7 @@ from keyboards.inline.menu_keyboard import buy_item
 from keyboards.inline.pay_keyboard import pay_keyboard
 from keyboards.inline.start_keyboard import start_keyboard
 from loader import dp, bot
-from utils.db_api.db_commands import get_purchase, select_user, get_item
+from utils.db_api.db_commands import get_purchase, select_user, get_item, get_last_unpaid_purchase
 from django_project.telegrambot.usermanage.models import Purchase
 
 
@@ -66,11 +67,16 @@ async def enter_phone(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(text='pay')
 async def pay_item(call: types.CallbackQuery):
-    user = await select_user(call.from_user.id) # собираю иформацию о польователе, который нажал кнопку купить
-    purchase = await get_purchase(user_id = user.id) # беру из БД последний заказ данного пользователя
+    user = await select_user(call.from_user.id) # собираю иформацию о пользователе, который нажал кнопку купить
+    purchase = await get_last_unpaid_purchase(user_id=user.id) # беру из БД последний заказ данного пользователя
 
-    if purchase.successful == False:
+    if purchase == False:
+        # если товар уже оплачен, то не допускаю повторной оплаты
+        await call.message.answer(f'Этот товар уже оплачен.', reply_markup=start_keyboard)
+
+    else:
         # если заказ не оплачен
+        purchase = await get_last_unpaid_purchase(user_id=user.id)
         item = await get_item(item_id=purchase.item_id_id) # собираю информацию о товаре в заказе
         # оформляю инвойс на оплату выбранного товара
         await bot.send_invoice(chat_id=call.from_user.id,
@@ -88,9 +94,6 @@ async def pay_item(call: types.CallbackQuery):
                                 payload='12345'
 
         )
-    else:
-        # если товар уже оплачен, то не допускаю повторной оплаты
-        await call.message.answer(f'Этот товар уже оплачен.', reply_markup=start_keyboard)
 
 
 @dp.shipping_query_handler()
@@ -122,7 +125,7 @@ async def process_successful_payment(message: types.Message):
 
     if user.bonus != 0:
         # обнуляю бонусные баллы, если они есть у пользователя
-        user.bonus = 0 
+        user.bonus = 0
         await sync_to_async(user.save)()
 
     purchase = await get_purchase(user_id = user.id)

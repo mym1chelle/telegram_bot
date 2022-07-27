@@ -141,6 +141,16 @@ def get_purchase(user_id):
 
 
 @sync_to_async
+def get_last_unpaid_purchase(user_id):
+    """Берет последний неоплаченный заказ"""
+    try:
+        return Purchase.objects.filter(buyer_id=user_id).filter(successful=False).last()
+    except:
+        print('Ошибка')
+        return False
+
+
+@sync_to_async
 def select_purchase(user_id):
     """Выбор всех заказов у пользователя"""
     return Purchase.objects.filter(buyer_id=user_id)
