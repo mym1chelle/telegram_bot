@@ -1,0 +1,25 @@
+{% extends 'usermanage/base.html' %}
+
+{% block content %}
+<h1>{{title}}</h1>
+<!--формирование формы-->
+<!-- с помощью тега form указываем в параметре action необходимый url
+method прописывается стандартно для передаичи данных-->
+<ul>
+    {% for purchase in purchases %}
+    <li>
+        <p>{{purchase.buyer.name}} {{purchase.buyer.user_id}}</p>
+    </li>
+    {% endfor %}
+</ul>
+
+<form action="{% url 'send_message' %}" method="post">
+    {% csrf_token %}
+    <!-- защита от CSRF атаки -->
+    {{ form.as_p }}
+    <!--  позволяет отображать все поля формы через тег абзаца p-->
+    <button type="submit">Отправить</button>
+    <!--  кнопка -->
+</form>
+
+{% endblock %}

@@ -1,12 +1,12 @@
-# кнопка для начала оплаты товара
+# кнопка для начала оплаты товаров в корзине
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-pay_keyboard = InlineKeyboardMarkup(
+pay_cart_keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
-                text='Оплатить товар',
-                callback_data='pay'),
-        ]
+                text='Оплатить',
+                callback_data='pay_cart'),
+        ],
     ]
 )

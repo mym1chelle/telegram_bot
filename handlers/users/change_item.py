@@ -40,7 +40,7 @@ async def edit_name(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
     item = data.get('item')
-    await bot.send_message(chat_id=call.from_user.id, text=f'Вы отменили удаление товара {item.name}.', reply_markup=start_keyboard)
+    await bot.edit_message_text(chat_id=call.from_user.id, text=f'Вы отменили удаление товара {item.name}.', reply_markup=start_keyboard, message_id=call.message.message_id)
 
 @dp.callback_query_handler(change_item.filter())
 async def change_item(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
@@ -58,7 +58,7 @@ async def edit_name(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
     item = data.get('item')
-    await bot.send_message(chat_id=call.from_user.id, text=f'Введите новое имя для товара {item.name}')
+    await bot.edit_message_text(chat_id=call.from_user.id, text=f'Введите новое имя для товара {item.name}', message_id=call.message.message_id)
     await state.set_state('enter_new_name')
 
 @dp.message_handler(state='enter_new_name')
@@ -77,7 +77,7 @@ async def edit_description(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
     item = data.get('item')
-    await bot.send_message(chat_id=call.from_user.id, text=f'Введите новое описание для товара {item.name}: {item.description}')
+    await bot.edit_message_text(chat_id=call.from_user.id, text=f'Введите новое описание для товара {item.name}: {item.description}', message_id=call.message.message_id)
     await state.set_state('enter_new_description')
 
 @dp.message_handler(state='enter_new_description')
@@ -96,7 +96,7 @@ async def edit_price(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
     item = data.get('item')
-    await bot.send_message(chat_id=call.from_user.id, text=f'Введите новую цену для товара {item.name}: {item.price}')
+    await bot.edit_message_text(chat_id=call.from_user.id, text=f'Введите новую цену для товара {item.name}: {item.price}', message_id=call.message.message_id)
     await state.set_state('enter_new_price')
 
 @dp.message_handler(state='enter_new_price')
@@ -115,7 +115,7 @@ async def edit_category_code(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
     item = data.get('item')
-    await bot.send_message(chat_id=call.from_user.id, text=f'Введите новый код категории для товара {item.name}: {item.category_code}')
+    await bot.edit_message_text(chat_id=call.from_user.id, text=f'Введите новый код категории для товара {item.name}: {item.category_code}', message_id=call.message.message_id)
     await state.set_state('enter_new_category_code')
 
 @dp.message_handler(state='enter_new_category_code')
@@ -134,7 +134,7 @@ async def edit_category_name(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
     item = data.get('item')
-    await bot.send_message(chat_id=call.from_user.id, text=f'Введите новый код категории для товара {item.name}: {item.category_name}')
+    await bot.edit_message_text(chat_id=call.from_user.id, text=f'Введите новый код категории для товара {item.name}: {item.category_name}', message_id=call.message.message_id)
     await state.set_state('enter_new_category_name')
 
 @dp.message_handler(state='enter_new_category_name')
@@ -153,7 +153,7 @@ async def edit_subcateory_code(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
     item = data.get('item')
-    await bot.send_message(chat_id=call.from_user.id, text=f'Введите новый код подкатегории для товара {item.name}: {item.subcategory_code}')
+    await bot.edit_message_text(chat_id=call.from_user.id, text=f'Введите новый код подкатегории для товара {item.name}: {item.subcategory_code}', message_id=call.message.message_id)
     await state.set_state('enter_new_subcategory_code')
 
 @dp.message_handler(state='enter_new_subcategory_code')
@@ -172,7 +172,7 @@ async def edit_subcategory_name(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
     item = data.get('item')
-    await bot.send_message(chat_id=call.from_user.id, text=f'Введите новое имя подкатегории товара {item.name}: {item.subcategory_name}')
+    await bot.edit_message_text(chat_id=call.from_user.id, text=f'Введите новое имя подкатегории товара {item.name}: {item.subcategory_name}', message_id=call.message.message_id)
     await state.set_state('enter_new_subcategory_name')
 
 
@@ -191,4 +191,4 @@ async def edit_new_price(message: types.Message, state: FSMContext):
 async def edit_subcategory_name(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     await state.finish()
-    await bot.send_message(chat_id=call.from_user.id, text='Вы отменили редактирование товара.', reply_markup=start_keyboard)
+    await bot.edit_message_text(chat_id=call.from_user.id, text='Вы отменили редактирование товара.', reply_markup=start_keyboard, message_id=call.message.message_id)

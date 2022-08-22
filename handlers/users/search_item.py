@@ -27,9 +27,11 @@ from data.config import BOT_LINK as link
 
 #     await query.answer(results=results)
 
-# данный инлайн поиск нужен мне для редактирования и удаления товаров из списка
 
 
+
+
+# данный инлайн поиск нужен мне для редактирования и удаления товаров из списка (работает неверно)
 # не понимаю как тут проходит смена в работе инлайн режимов
 @dp.inline_handler(UserFilter())
 async def item_query_admin(query: types.InlineQuery):

@@ -1,4 +1,3 @@
-from distutils.command.upload import upload
 from django.db import models
 from jsonfield import JSONField
 
@@ -6,7 +5,7 @@ from jsonfield import JSONField
 class TimeBasedModel(models.Model):
     class Meta:
         abstract = True  # абстрактный метод на основании которого будут создаваться все остальные
-    # создаем две колонки, как и в случае с Gino (чтобы видеть дату создания строки в БД и дату изменения)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -17,13 +16,12 @@ class User(TimeBasedModel):
         verbose_name = 'Пользователь'  # название одной строки
         verbose_name_plural = 'Пользователи' # название таблицы
 
-    # создание полей тут более явное чем в Gino
     id = models.AutoField(primary_key=True)
     user_id = models.BigIntegerField(unique=True, default=1, verbose_name='ID пользователя телеграм') # verbose_name – название колонки
     name = models.CharField(max_length=100, verbose_name='Имя пользователя')
     username = models.CharField(max_length=100, verbose_name='Username Телеграм', null=True) # оказывается, не у всех пользователей есть username
     email = models.CharField(max_length=100, verbose_name='Email', null=True)  # null=True — поле может быть пустым
-    bonus = models.DecimalField(verbose_name='Цена', decimal_places=2, max_digits=8, default=0)
+    bonus = models.DecimalField(verbose_name='Бонусные баллы', decimal_places=2, max_digits=8, default=0)
     referrer_number = models.CharField(max_length=100)
     referral = models.ForeignKey('Referral', on_delete=models.PROTECT)
 
@@ -49,6 +47,7 @@ class Item(TimeBasedModel):
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
+
     id = models.AutoField(primary_key=True)
     name = models.CharField(verbose_name='Название товара', max_length=50)
     photo = models.ImageField(verbose_name='Фото', upload_to='photos/%Y/%m/%d/', null=True)
@@ -64,7 +63,7 @@ class Item(TimeBasedModel):
     subcategory_name = models.CharField(verbose_name='Название подкатегории', max_length=20)
 
     def __str__(self):
-        return f'№{self.id} — {self.name}'
+        return f'{self.name}'
 
 
 class Purchase(TimeBasedModel):
@@ -90,9 +89,15 @@ class Purchase(TimeBasedModel):
 
 
 class BotAdmin(TimeBasedModel):
+    class Meta:
+        verbose_name = 'Админ бота'
+        verbose_name_plural = 'Админы бота'
+
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     user_id = models.BigIntegerField(unique=True, default=1)
 
     def __str__(self):
         return f'№{self.id} - {self.user_id} - {self.name}'
+
+    

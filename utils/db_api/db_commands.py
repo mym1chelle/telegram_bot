@@ -1,4 +1,6 @@
-from django_project.telegrambot.usermanage.models import Item, Purchase, User, Referral, BotAdmin 
+
+from decimal import Decimal
+from django_project.telegrambot.usermanage.models import Item, Purchase, User, Referral, BotAdmin
 from asgiref.sync import sync_to_async
 from django.db.models import Sum, Count
 
@@ -135,9 +137,15 @@ def add_item(name, price, description, category_code, category_name, subcategory
 
 
 @sync_to_async
-def get_purchase(user_id):
+def get_last_purchase(user_id):
     """Берет последний добавленный заказ"""
     return Purchase.objects.filter(buyer_id=user_id).last()
+
+
+# @sync_to_async
+# def get_purchase(purchase_id):
+#     """Ищет заказ по id"""
+#     return Purchase.objects.get(id=purchase_id)
 
 
 @sync_to_async
@@ -155,11 +163,27 @@ def select_purchase(user_id):
     """Выбор всех заказов у пользователя"""
     return Purchase.objects.filter(buyer_id=user_id)
 
+@sync_to_async
+def select_unpaid_purchase(user_id):
+    """Выбор всех неоплаченных заказов пользователя"""
+    try:
+        return Purchase.objects.filter(buyer_id=user_id).filter(successful=False)
+    except:
+        return False
+
 
 @sync_to_async
 def count_sum(user_id):
     """Выводит список заказов пользователя. Группирует их по названию и суммирует цену и количество"""
     return Purchase.objects.filter(buyer_id=user_id).values('item_id').annotate(total=Sum('amount'), quantity=Sum('quantity'))
+
+@sync_to_async
+def total_sum_unpaid_purchase(user_id):
+    """Выводит сумму всех неоплаченных пользователем товаров"""
+    try:
+        return Purchase.objects.filter(buyer_id=user_id).filter(successful=False).aggregate(Sum('amount'))
+    except:
+        return False
 
 @sync_to_async
 def edit_name(item_id, new_name):
@@ -225,3 +249,44 @@ def delete_item(item_id):
     except:
         print('Ошибка')
         return False
+
+@sync_to_async
+def increase(purchase_id, purchase_price):
+    try:
+        purchase = Purchase.objects.get(id=purchase_id)
+        purchase.quantity = purchase.quantity + 1
+        purchase.amount = purchase.amount + Decimal(purchase_price)
+        purchase.save()
+    except:
+        print('Ошибка')
+        return False
+
+@sync_to_async
+def decrease(purchase_id, purchase_price):
+    try:
+        purchase = Purchase.objects.get(id=purchase_id)
+        purchase.quantity = purchase.quantity - 1
+        purchase.amount = purchase.amount - Decimal(purchase_price)
+        purchase.save()
+    except:
+        print('Ошибка')
+        return False
+
+    
+@sync_to_async
+def change_quantity(purchase_id, purchase_quantity, purchase_price):
+    try:
+        purchase = Purchase.objects.get(id=purchase_id)
+        purchase.quantity = purchase_quantity
+        purchase.amount = Decimal(purchase_price) * purchase_quantity
+        purchase.save()
+    except:
+        print('Ошибка')
+        return False
+
+
+# это тестовая функция
+@sync_to_async
+def select_all_purchase():
+    """Выбор всех заказов у всех пользователей"""
+    return Purchase.objects.all()

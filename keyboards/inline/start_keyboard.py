@@ -1,3 +1,4 @@
+# Начальное меню
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 start_keyboard = InlineKeyboardMarkup(
@@ -9,11 +10,17 @@ start_keyboard = InlineKeyboardMarkup(
                 
             InlineKeyboardButton(
                 text='Реферралы',
-                callback_data='ref'),
+                callback_data='ref')
+        ],
 
+        [
             InlineKeyboardButton(
                 text='Мои заказы',
-                callback_data='purch'),
+                callback_data='order_list'),
+
+            InlineKeyboardButton(
+                text='Корзина',
+                callback_data='cart')
         ]
     ]
 )

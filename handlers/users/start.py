@@ -1,3 +1,4 @@
+from email import message
 from utils.misc.check_channel import check
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -92,13 +93,18 @@ async def bot_start(message: types.Message):
 
 @dp.callback_query_handler(text='ref')
 async def view_referral(call: types.CallbackQuery):
-    """Функция выводит в сообщении сколько пользователей было зарегестрированно благодаря реферральной ссылке пользователя"""
+    """Функция выводит в сообщении сколько пользователей было зарегистрированно благодаря реферральной ссылке пользователя"""
     await call.answer()
-    referrals = await commands.view_referral(user_id = call.from_user.id)
-    if referrals:
-        await call.message.answer(f'{call.from_user.get_mention()}, по вашей реферальной ссылке было зарегистрировано пользователей - {referrals}')
-    else:
-        await call.message.answer(f'{call.from_user.get_mention()}, по вашей реферальной ссылке ни один пользователь не зарегестрирован.')
+    referrals = await commands.view_referral(user_id=call.from_user.id)
+    bonus = (await commands.select_user(user_id=call.from_user.id)).bonus
+    try:
+        if referrals:
+            await call.message.edit_text(f'{call.from_user.get_mention()}, по вашей реферальной ссылке было зарегистрировано пользователей - {referrals}. \n'
+            f'Количество бонусных баллов: {bonus}', reply_markup=start_keyboard)
+        else:
+            await call.message.edit_text(f'{call.from_user.get_mention()}, по вашей реферальной ссылке ни один пользователь не зарегестрирован.', reply_markup=start_keyboard)
+    except:
+        pass
 
 
 @dp.callback_query_handler(text='code')
@@ -168,16 +174,14 @@ async def check_subs(call: types.CallbackQuery):
                     f'<a href="{invite_link}">Нужно подписаться</a>', disable_web_page_preview=True)
 
 
-@dp.callback_query_handler(text='purch')
-async def select_purchase(call: types.CallbackQuery):
-    """Выводит список всех заказов пользователя. Одинаковые товары группирует по названию и выводит общую сумму и количество"""
-    await call.answer()
-    user = await commands.select_user(call.from_user.id)
-    purchase = await commands.count_sum(user_id=user.id)
-    # Это костыль. Нужно разобраться как узнавать товар по id более грамонтно.
-    for i in purchase:
-        item = await commands.get_item(item_id=i['item_id'])
-        i['item_id'] = item.name
-    purchase_lst = [f'{i["item_id"]}, цена: {i["total"]} руб., {i["quantity"]} шт.' for i in purchase]
-    purchase_str = '\n'.join(purchase_lst)
-    await call.message.answer(f'Вы заказали: \n{purchase_str}')
+
+
+
+
+# эта функция ненужная, удалить
+@dp.message_handler()
+async def get_message(message: types.Message):
+    user = message.from_user.full_name
+    message = message.text
+    print(user, message)
+

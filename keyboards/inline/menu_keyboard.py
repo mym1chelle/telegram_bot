@@ -3,13 +3,13 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.callback_data import CallbackData
 from data.config import BOT_LINK as link
 
-buy_item = CallbackData('buy', 'item_id')
+add_cart = CallbackData('add', 'item_id')
 
 
 def buy_item_keyboard(item_id):
     markup = InlineKeyboardMarkup()
     markup.row(
-        InlineKeyboardButton(text='Купить', callback_data=buy_item.new(item_id=item_id)),
+        InlineKeyboardButton(text='Добавить в корзину', callback_data=add_cart.new(item_id=item_id)),
         InlineKeyboardButton(text='Меню', switch_inline_query_current_chat='')
     )
     return markup
