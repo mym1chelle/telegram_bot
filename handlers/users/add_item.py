@@ -6,13 +6,13 @@ from aiogram.dispatcher.filters import Command
 from loader import dp, bot
 from utils.db_api import db_commands as commands
 from states import AddItems
-from filters import UserFilter
+from filters import AdminFilter
 from keyboards.inline.admin_menu import admin_keyboard
 from keyboards.inline.start_keyboard import start_keyboard
 
 
 
-@dp.message_handler(Command('admin'), UserFilter())
+@dp.message_handler(Command('admin'), AdminFilter())
 async def admin_settings(message: types.Message):
     await message.answer(f'{message.from_user.get_mention()}, вы вошли в меню администратора:\n', reply_markup=admin_keyboard)
 

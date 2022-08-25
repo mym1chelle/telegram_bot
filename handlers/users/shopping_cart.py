@@ -3,9 +3,10 @@ from utils.db_api import db_commands as commands
 from loader import dp
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from asyncio import sleep
 
 from keyboards.inline.pay_keyboard import pay_cart_keyboard
-from keyboards.inline.cart_keyboard import cart_keyboard, plus, minus, item_quantity
+from keyboards.inline.cart_keyboard import cart_keyboard, plus, minus, item_quantity, delete_purchase
 from keyboards.inline.start_keyboard import start_keyboard
 
 @dp.callback_query_handler(text='cart')
@@ -14,16 +15,22 @@ async def wiev_cart(call: types.CallbackQuery):
     await call.answer()
     user = await commands.select_user(call.from_user.id)
     purchase = await commands.select_unpaid_purchase(user_id=user.id)
+    
+    for i in purchase:
+        quantity = await commands.get_purchase(purchase_id=i.id)
+        if quantity.quantity == 0:
+            await commands.delete_purchase(purchase_id=i.id)
+
     if not purchase.exists():
         try:
             await call.message.edit_text(f'В корзине нет товаров. ', reply_markup=start_keyboard)
         except:
             pass
 
-    
     else:
         for i in purchase:
             purchase_id = i.id
+            
             item = await commands.get_item(item_id=i.item_id.id)
             await call.message.answer(f'{i.item_id}: {i.amount} руб., ', reply_markup=cart_keyboard(quantity=i.quantity, purchase_id=purchase_id, price=item.price))
 
@@ -55,7 +62,7 @@ async def change_quantity(call: types.CallbackQuery, callback_data: dict, state:
     await state.set_state('new_quantity')
 
 @dp.message_handler(state='new_quantity')
-async def get_code(message: types.Message, state: FSMContext):
+async def get_quantity(message: types.Message, state: FSMContext):
     quantity = int(message.text)
 
     data = await state.get_data()
@@ -65,3 +72,8 @@ async def get_code(message: types.Message, state: FSMContext):
     await commands.change_quantity(purchase_id=purchase_id, purchase_quantity=quantity, purchase_price=price)
 
     await state.finish()
+
+@dp.callback_query_handler(delete_purchase.filter())
+async def delete_purchase(call: types.CallbackQuery, callback_data: dict):
+    await call.answer()
+    await commands.delete_purchase(purchase_id=callback_data['purchase_id'])

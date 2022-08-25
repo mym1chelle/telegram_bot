@@ -1,4 +1,3 @@
-from email import message
 from utils.misc.check_channel import check
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -172,16 +171,3 @@ async def check_subs(call: types.CallbackQuery):
         invite_link = channel.export_invite_link()
         await call.message.answer(f'Подписка на канал <b>{channel.title}</b> не оформлена!\n'\
                     f'<a href="{invite_link}">Нужно подписаться</a>', disable_web_page_preview=True)
-
-
-
-
-
-
-# эта функция ненужная, удалить
-@dp.message_handler()
-async def get_message(message: types.Message):
-    user = message.from_user.full_name
-    message = message.text
-    print(user, message)
-

@@ -284,9 +284,22 @@ def change_quantity(purchase_id, purchase_quantity, purchase_price):
         print('Ошибка')
         return False
 
+@sync_to_async
+def delete_purchase(purchase_id):
+    try:
+        purchase = Purchase.objects.get(id=purchase_id)
+        return purchase.delete()
+    except:
+        print('Ошибка')
+        return False
+
 
 # это тестовая функция
 @sync_to_async
 def select_all_purchase():
     """Выбор всех заказов у всех пользователей"""
     return Purchase.objects.all()
+
+@sync_to_async
+def get_purchase(purchase_id):
+    return Purchase.objects.get(id=purchase_id)

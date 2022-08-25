@@ -7,8 +7,9 @@ from keyboards.inline.start_keyboard import start_keyboard
 from keyboards.inline.menu_keyboard import change_item, del_item
 from utils.db_api import db_commands as commands
 from loader import dp, bot
+from filters import AdminFilter
 
-@dp.callback_query_handler(del_item.filter())
+@dp.callback_query_handler(del_item.filter(), AdminFilter())
 async def delete_item(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer()
     item_id = callback_data.get('item_id')
@@ -40,9 +41,10 @@ async def edit_name(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
     data = await state.get_data()
     item = data.get('item')
-    await bot.edit_message_text(chat_id=call.from_user.id, text=f'Вы отменили удаление товара {item.name}.', reply_markup=start_keyboard, message_id=call.message.message_id)
+    await state.finish()
+    await bot.edit_message_text(chat_id=call.from_user.id, text=f'Вы отменили удаление товара {item.name}.', message_id=call.message.message_id, reply_markup=start_keyboard)
 
-@dp.callback_query_handler(change_item.filter())
+@dp.callback_query_handler(change_item.filter(), AdminFilter())
 async def change_item(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer()
     item_id = callback_data.get('item_id')
