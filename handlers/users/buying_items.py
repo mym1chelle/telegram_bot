@@ -73,9 +73,6 @@ async def pay_item(call: types.CallbackQuery):
     await call.answer()
     user = await select_user(call.from_user.id) # собираю иформацию о пользователе, который нажал кнопку купить
     sum = await total_sum_unpaid_purchase(user_id=user.id) # беру из БД все неоплаченные заказы данного пользователя и считаю их сумму
-
-    print(sum)
-    print(sum['amount__sum'])
     if sum['amount__sum'] == None or sum == False:
         # если сумма не посчиталась, то значит в корзине нет товаров
         await call.message.answer(f'В корзине нет товаров.', reply_markup=start_keyboard)

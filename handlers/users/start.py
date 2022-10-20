@@ -95,11 +95,14 @@ async def view_referral(call: types.CallbackQuery):
     """Функция выводит в сообщении сколько пользователей было зарегистрированно благодаря реферральной ссылке пользователя"""
     await call.answer()
     referrals = await commands.view_referral(user_id=call.from_user.id)
-    bonus = (await commands.select_user(user_id=call.from_user.id)).bonus
+    user = await commands.select_user(user_id=call.from_user.id)
+    bot_username = (await bot.get_me()).username
+    bot_link = f'https://t.me/{bot_username}?start={user.referrer_number}'
+    
     try:
         if referrals:
-            await call.message.edit_text(f'{call.from_user.get_mention()}, по вашей реферальной ссылке было зарегистрировано пользователей - {referrals}. \n'
-            f'Количество бонусных баллов: {bonus}', reply_markup=start_keyboard)
+            await call.message.edit_text(f'{call.from_user.get_mention()}, по вашей реферальной ссылке: {bot_link} было зарегистрировано пользователей - {referrals}. \n'
+            f'Количество бонусных баллов: {user.bonus}', reply_markup=start_keyboard)
         else:
             await call.message.edit_text(f'{call.from_user.get_mention()}, по вашей реферальной ссылке ни один пользователь не зарегестрирован.', reply_markup=start_keyboard)
     except:
