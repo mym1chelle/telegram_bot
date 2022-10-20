@@ -15,9 +15,9 @@ async def select_purchase(call: types.CallbackQuery):
     for i in purchase:
         item = await commands.get_item(item_id=i['item_id'])
         i['item_id'] = item.name
-    purchase_lst = [f'{i["item_id"]}, цена: {i["total"]} руб., {i["quantity"]} шт.' for i in purchase]
+    purchase_lst = [f'{i["item_id"]} ({i["quantity"]} шт.) - {i["total"]} руб.' for i in purchase]
     purchase_str = '\n'.join(purchase_lst)
     try:
-        await call.message.edit_text(f'Вы заказали: \n{purchase_str}', reply_markup=start_keyboard)
+        await call.message.edit_text(f'Вы заказали: \n\n{purchase_str}', reply_markup=start_keyboard)
     except:
         pass

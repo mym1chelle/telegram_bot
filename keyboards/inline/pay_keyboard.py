@@ -7,6 +7,9 @@ pay_cart_keyboard = InlineKeyboardMarkup(
             InlineKeyboardButton(
                 text='Оплатить',
                 callback_data='pay_cart'),
+            InlineKeyboardButton(
+                text='Обновить корзину',
+                callback_data='cart'),
         ],
     ]
 )

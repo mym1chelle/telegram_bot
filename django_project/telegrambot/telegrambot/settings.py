@@ -75,7 +75,7 @@ WSGI_APPLICATION = 'django_project.telegrambot.telegrambot.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 import sys
-sys.path.append(r'D:\MyFile\Python\my_project\final_project_bot_win')
+sys.path.append(r'/Users/timursamusenko/Desktop/for maliutka/FINAL_PROJECT_BOT_WIN')
 from data import config
 
 DATABASES = {
@@ -84,7 +84,7 @@ DATABASES = {
         'NAME': config.NAME,
         'USER': config.USER,
         'PASSWORD': config.PASSWORD,
-        'HOST': config.HOST,
+        'HOST': 'db',
         'PORT': config.PORT
     }
 }

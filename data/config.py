@@ -16,3 +16,6 @@ BOT_LINK = env.str('BOT_LINK')
 
 # для оплаты
 PROVIDER_TOKEN = env.str('PROVIDER_TOKEN')
+
+# для тестирования веб-приложения
+APP_LINK = env.str('APP_LINK')
