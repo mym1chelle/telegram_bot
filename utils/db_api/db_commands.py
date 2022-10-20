@@ -2,7 +2,7 @@
 from decimal import Decimal
 from django_project.telegrambot.usermanage.models import Item, Purchase, User, Referral, BotAdmin
 from asgiref.sync import sync_to_async
-from django.db.models import Sum, Count
+from django.db.models import Sum
 
 from typing import List
 
@@ -122,6 +122,15 @@ def get_admin(user_id):
     """Поиск пользователя в таблице администратовров по user_id"""
     try:
         return BotAdmin.objects.get(user_id=user_id)
+    except:
+        return False
+
+
+@sync_to_async
+def select_admin():
+    """Собирает информацию обо всех прользователях из таблицы администраторов"""
+    try:
+        return BotAdmin.objects.all()
     except:
         return False
 
