@@ -134,3 +134,4 @@ final_project_case.txt
 postgresql/
 .idea
 .DS_Store
+django_project/.DS_Store
